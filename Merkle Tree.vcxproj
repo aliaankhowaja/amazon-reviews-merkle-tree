@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,7 +128,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Merkle Tree.cpp" />
+    <ClCompile Include="data_preprocessing.cpp" />
+    <ClCompile Include="existence_proof.cpp" />
+    <ClCompile Include="integrity_verification.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="merkle_tree.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="data_preprocessing.h" />
+    <ClInclude Include="existence_proof.h" />
+    <ClInclude Include="integrity_verification.h" />
+    <ClInclude Include="merkle_tree.h" />
+    <ClInclude Include="picosha2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data.json" />
+    <None Include="data2.json" />
+    <None Include="data_small.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
