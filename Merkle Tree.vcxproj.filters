@@ -30,6 +30,12 @@
     <ClCompile Include="integrity_verification.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tamper_detection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="performance_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="integrity_verification.h">
@@ -47,6 +53,12 @@
     <ClInclude Include="existence_proof.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tamper_detection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="performance_test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="data.json">
@@ -56,6 +68,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="data2.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="datas.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="digital_music.json">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -133,18 +133,24 @@
     <ClCompile Include="integrity_verification.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="merkle_tree.cpp" />
+    <ClCompile Include="performance_test.cpp" />
+    <ClCompile Include="tamper_detection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="data_preprocessing.h" />
     <ClInclude Include="existence_proof.h" />
     <ClInclude Include="integrity_verification.h" />
     <ClInclude Include="merkle_tree.h" />
+    <ClInclude Include="performance_test.h" />
     <ClInclude Include="picosha2.h" />
+    <ClInclude Include="tamper_detection.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data.json" />
     <None Include="data2.json" />
+    <None Include="datas.json" />
     <None Include="data_small.json" />
+    <None Include="digital_music.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

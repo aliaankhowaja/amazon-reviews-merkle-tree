@@ -70,3 +70,70 @@ list<string> MerkleTree::getProof(int leafIndex) const {
     }
     return proof;
 }
+
+void MerkleTree::deleteNode(int index)
+{
+	if (index < 0 || index >= leaves.size()) {
+		cout << "Index out of range for deletion." << endl;
+        return;
+	}
+	MerkleNode* targetLeaf = leaves[index];
+	// Mark the leaf as deleted by setting its hash to an empty string
+	targetLeaf->hash = "";
+	// Recompute hashes up to the root
+	this->updateHashes(targetLeaf);
+}
+
+void MerkleTree::updateNode(int index, const string& newData)
+{
+	if (index < 0 || index >= leaves.size()) {
+		cout << "Index out of range for update." << endl;
+		return;
+	}
+	MerkleNode* targetLeaf = leaves[index];
+    targetLeaf->hash = picosha2::hash256_hex_string(newData);
+	this->updateHashes(targetLeaf);
+}
+
+void MerkleTree::insertNode(const string& data)
+{
+	MerkleNode* node = new MerkleNode(data, leaves.size());
+	leaves.push_back(node);
+	MerkleNode* newRoot = new MerkleNode(root, node);
+	root->parent = newRoot;
+	node->parent = newRoot;
+	root = newRoot;
+}
+
+void MerkleTree::updateHashes(MerkleNode* node)
+{
+    MerkleNode* current = node;
+    while (current->parent != nullptr) {
+        MerkleNode* parent = current->parent;
+        string leftHash = parent->left->hash;
+        string rightHash = parent->right->hash;
+        if (leftHash.empty() && rightHash.empty()) {
+            parent->hash = ""; // both children deleted
+        }
+        else if (leftHash.empty()) {
+            parent->hash = rightHash; // only left child deleted
+        }
+        else if (rightHash.empty()) {
+            parent->hash = leftHash; // only right child deleted
+        }
+        else {
+            parent->hash = picosha2::hash256_hex_string(leftHash + rightHash); // recompute hash
+        }
+        current = parent;
+    }
+}
+
+string MerkleTree::getName() const
+{
+    return name;
+}
+
+string MerkleTree::getRootHash() const
+{
+    return root->hash;
+}

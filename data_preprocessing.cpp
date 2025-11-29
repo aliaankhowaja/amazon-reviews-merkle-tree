@@ -20,8 +20,15 @@ string DataPreprocessing::trim(const string& str) {
     return str.substr(first, (last - first + 1));
 }
 
+string Review::trim(const string& str) {
+    size_t first = str.find_first_not_of(" \t\r\n");
+    if (first == string::npos) return "";
+    size_t last = str.find_last_not_of(" \t\r\n");
+    return str.substr(first, (last - first + 1));
+}
+
 // Extract string value from JSON
-string DataPreprocessing::extractString(const string& json, const string& key) {
+string Review::extractString(const string& json, const string& key) {
     string searchKey = "\"" + key + "\":";
     size_t pos = json.find(searchKey);
     if (pos == string::npos) return "";
@@ -34,7 +41,7 @@ string DataPreprocessing::extractString(const string& json, const string& key) {
     pos++; // Skip opening quote
     size_t endPos = pos;
     while (endPos < json.length() && json[endPos] != '"') {
-        if (json[endPos] == '\\') endPos++; // Skip escaped characters
+        if (json[endPos] == '\\') endPos++; 
         endPos++;
     }
 
@@ -42,7 +49,7 @@ string DataPreprocessing::extractString(const string& json, const string& key) {
 }
 
 // Extract number value from JSON
-double DataPreprocessing::extractNumber(const string& json, const string& key) {
+double Review::extractNumber(const string& json, const string& key) {
     string searchKey = "\"" + key + "\":";
     size_t pos = json.find(searchKey);
     if (pos == string::npos) return 0.0;
@@ -60,7 +67,7 @@ double DataPreprocessing::extractNumber(const string& json, const string& key) {
 }
 
 // Extract boolean value from JSON
-bool DataPreprocessing::extractBool(const string& json, const string& key) {
+bool Review::extractBool(const string& json, const string& key) {
     string searchKey = "\"" + key + "\":";
     size_t pos = json.find(searchKey);
     if (pos == string::npos) return false;
@@ -72,7 +79,7 @@ bool DataPreprocessing::extractBool(const string& json, const string& key) {
 }
 
 // Extract object from JSON (simplified for style field)
-map<string, string> DataPreprocessing::extractObject(const string& json, const string& key) {
+map<string, string> Review::extractObject(const string& json, const string& key) {
     map<string, string> result;
     string searchKey = "\"" + key + "\":";
     size_t pos = json.find(searchKey);
@@ -108,11 +115,11 @@ map<string, string> DataPreprocessing::extractObject(const string& json, const s
 }
 
 // Load data from JSON file
-bool DataPreprocessing::loadData() {
+vector<string> DataPreprocessing::loadData() {
     ifstream file(filePath);
     if (!file.is_open()) {
         cerr << "Error: Unable to open file: " << filePath << endl;
-        return false;
+        return dataStrings;
     }
 
     cout << "Loading data from: " << filePath << endl;
@@ -126,22 +133,13 @@ bool DataPreprocessing::loadData() {
         if (line.empty()) continue;
 
         try {
+
+
             Review review;
-
-            // Extract all fields
-            review.overall = extractNumber(line, "overall");
-            review.vote = extractString(line, "vote");
-            review.verified = extractBool(line, "verified");
-            review.reviewTime = extractString(line, "reviewTime");
-            review.reviewerID = extractString(line, "reviewerID");
-            review.asin = extractString(line, "asin");
-            review.style = extractObject(line, "style");
-            review.reviewerName = extractString(line, "reviewerName");
-            review.reviewText = extractString(line, "reviewText");
-            review.summary = extractString(line, "summary");
-            review.unixReviewTime = (long long)extractNumber(line, "unixReviewTime");
-
-            reviews.push_back(review);
+			review.parse(line);
+            //reviews.push_back(review);
+			dataStrings.push_back(review.toString());
+            
 
         }
         catch (const exception& e) {
@@ -153,32 +151,32 @@ bool DataPreprocessing::loadData() {
     file.close();
 
     cout << "Data loaded successfully!" << endl;
-    cout << "Total records: " << reviews.size() << endl;
+    cout << "Total records: " << dataStrings.size() << endl;
     cout << "Total lines processed: " << lineCount << endl;
     cout << "Errors encountered: " << errorCount << endl;
 
-    return true;
+    return dataStrings;
 }
 
 // Clean data - remove invalid or incomplete records
 void DataPreprocessing::cleanData() {
     cout << "\n--- Data Cleaning ---" << endl;
-    cout << "Records before cleaning: " << reviews.size() << endl;
+    cout << "Records before cleaning: " << dataStrings.size() << endl;
 
-    vector<Review> cleanedReviews;
+    vector<string> cleanedReviews;
     int removedCount = 0;
 
-    for (const auto& review : reviews) {
-        if (validateRecord(review)) {
-            cleanedReviews.push_back(review);
-        } else {
-            removedCount++;
-        }
-    }
+    //for (const auto& review : dataStrings) {
+    //    if (validateRecord(review)) {
+    //        cleanedReviews.push_back(review);
+    //    } else {
+    //        removedCount++;
+    //    }
+    //}
 
-    reviews = cleanedReviews;
+    dataStrings = cleanedReviews;
 
-    cout << "Records after cleaning: " << reviews.size() << endl;
+    cout << "Records after cleaning: " << dataStrings.size() << endl;
     cout << "Records removed: " << removedCount << endl;
 }
 
@@ -186,61 +184,23 @@ void DataPreprocessing::cleanData() {
 void DataPreprocessing::normalizeData() {
     cout << "\n--- Data Normalization ---" << endl;
 
-    for (auto& review : reviews) {
-        // Trim all string fields
-        review.vote = trim(review.vote);
-        review.reviewTime = trim(review.reviewTime);
-        review.reviewerID = trim(review.reviewerID);
-        review.asin = trim(review.asin);
-        review.reviewerName = trim(review.reviewerName);
-        review.reviewText = trim(review.reviewText);
-        review.summary = trim(review.summary);
-
-        // Normalize rating to be between 0 and 5
-        if (review.overall < 0.0) review.overall = 0.0;
-        if (review.overall > 5.0) review.overall = 5.0;
+    for (auto& review : dataStrings) {
+        trim(review);
     }
 
     cout << "Data normalization completed." << endl;
 }
 
-// Convert reviews to string representations for Merkle tree
-vector<string> DataPreprocessing::toString() {
-    cout << "\n--- Converting to Strings ---" << endl;
-    vector<string> dataStrings;
+int DataPreprocessing::getNumRecords() const {
+    return dataStrings.size();
+}
 
-    for (const auto& review : reviews) {
-        stringstream ss;
-        // reviewerID|asin|unixReviewTime is composite key
-        // Create a compact string representation of the review
-        ss << review.reviewerID << "|"
-            << review.asin << "|"
-            << review.unixReviewTime << "|"
-            << review.overall << "|"
-            << review.verified << "|"
-            << review.summary << "|"
-            << review.reviewText;
-
-        dataStrings.push_back(ss.str());
-    }
-
-    cout << "Converted " << dataStrings.size() << " records to strings." << endl;
+const vector<string>& DataPreprocessing::getReviews() const {
     return dataStrings;
 }
 
-// Get record count
-int DataPreprocessing::getNumRecords() const {
-    return reviews.size();
-}
-
-// Get reviews vector
-const vector<Review>& DataPreprocessing::getReviews() const {
-    return reviews;
-}
-
 bool DataPreprocessing::validateRecord(const Review& review) {
-    // Basic validation: check required fields
-    if (review.reviewerID.empty() || review.asin.empty() || review.reviewText.empty()) {
+    if (review.reviewerID.empty() || review.asin.empty()) {
         return false;
     }
     return true;
